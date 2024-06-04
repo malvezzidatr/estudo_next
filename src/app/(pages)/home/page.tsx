@@ -6,23 +6,13 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div className="h-screen w-screen flex flex-col">
-      <div className="flex-1 bg-blue-900 flex items-center justify-center relative">
-        <div className="bg-white min-h-96 w-5/6 relative top-16 border flex p-4">
-          <div className="border flex items-center justify-between flex-col h-72 w-96 p-3">
-            <h1>Teste</h1>
-            <div className="flex items-center justify-center">
-              <h1 className="text-5xl">8</h1>
-            </div>
-            <button className="w-full h-10 bg-blue-900 rounded text-white hover:opacity-90 transition duration-300">
-              Ver detalhes
-            </button>
-          </div>
-        </div>
-      </div>
-      <div className="h-4/6 bg-white">
-
-      </div>
+    <div className="h-screen w-screen flex justify-center bg-white">
+      <section className="mt-6 h-16 shadow rounded-full flex w-3/6 items-center justify-between relative border-2">
+          <input placeholder="Número da Sprint" className="pl-10 rounded-full flex-1 h-full focus:bg-slate-200 outline-none"/>
+          <input placeholder="Início" className="pl-10 rounded-full flex-1 h-full focus:bg-slate-200 outline-none"/>
+          <input placeholder="Termino" className="pl-10 rounded-full flex-1 h-full focus:bg-slate-200 outline-none"/>
+          <button className="rounded-full absolute bg-gray-800 w-28 h-3/4 right-0 mr-2 text-white font-bold hover:bg-green-800 transaction duration-500">Sprint</button>
+      </section>
     </div>
   );
 }
