@@ -1,33 +1,66 @@
 "use client"
-import { Calendar, CalendarDate, DateValue } from "@nextui-org/calendar";
-import { useState } from "react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { DateRangePicker } from "@nextui-org/date-picker";
+import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
-  const [startDate, setStartDate] = useState<DateValue>();
-  const [endDate, setEndDate] = useState<DateValue>();
+  const [isOpenDatePicker, setIsOpenDatePicker] = useState<boolean>(false);
+  const dateRangePickerRef = useRef<HTMLDivElement>(null);
 
-  const handleEndeDateChange = (date: DateValue) => {
-    setEndDate(date);
+  const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, handler: () => void) => {
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (ref.current && !ref.current.contains(event.target as Node)) {
+          handler();
+        }
+      };
+
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [ref, handler]);
   };
 
-  const handleStartDateChange = (date: DateValue) => {
-    setStartDate(date);
+  useOutsideClick(dateRangePickerRef, () => setIsOpenDatePicker(false));
+
+  const handleInputClick = () => {
+    setIsOpenDatePicker(true);
   };
+
+  useEffect(() => {
+    if (dateRangePickerRef.current) {
+      dateRangePickerRef.current.addEventListener("click", handleInputClick);
+    }
+    return () => {
+      if (dateRangePickerRef.current) {
+        dateRangePickerRef.current.removeEventListener("click", handleInputClick);
+      }
+    };
+  }, [dateRangePickerRef]);
 
   return (
-    <div className="h-screen w-screen flex justify-center bg-white">
-      <section className="mt-6 h-16 shadow rounded-full flex w-3/6 items-center justify-between relative border-2">
-          <input placeholder="Número da Sprint" className="pl-10 rounded-full flex-1 h-full focus:bg-slate-200 outline-none"/>
-          <input placeholder="Início" value={startDate && format(new Date(startDate), "dd 'de' MMM", { locale: ptBR })} className="pl-10 rounded-full flex-1 h-full focus:bg-slate-200 outline-none"/>
-          <input placeholder="Termino" value={endDate && format(new Date(endDate), "dd 'de' MMM", { locale: ptBR })} className="pl-10 rounded-full flex-1 h-full focus:bg-slate-200 outline-none"/>
-          <button className="rounded-full absolute bg-gray-800 w-28 h-3/4 right-0 mr-2 text-white font-bold hover:bg-green-800 transaction duration-500">Sprint</button>
-      </section>
-      <div className="flex gap-x-4">
-        <Calendar aria-label="Date (No Selection)" onChange={handleStartDateChange} />
-        <Calendar aria-label="Date (Uncontrolled)" onChange={handleEndeDateChange} />
+    <section className="h-screen w-screen items-center flex justify-center bg-white">
+      <div className="flex flex-col w-3/6 relative">
+        <div className="h-20 shadow rounded-xl flex w-full items-center justify-between border-2 border-primary-100">
+          <input placeholder="Número da Sprint" className="bg-primary-50 pl-5 rounded-xl flex-1 h-full focus:bg-slate-200 outline-none placeholder:text-primary-500"/>
+          <div className="h-8 w-0.5 rounded-full bg-primary-200 m-2" />
+          <DateRangePicker
+            ref={dateRangePickerRef}
+            isOpen={isOpenDatePicker}
+            onChange={value => console.log(value)}
+            visibleMonths={3}
+            label="Início e fim"
+            color="primary"
+            size="lg"
+            classNames={{
+              base: "h-full bg-primary-50 flex justify-center rounded-xl",
+              inputWrapper: "h-full"
+
+            }}
+          />
+          <button className="rounded-full absolute right-0 mr-2 h-12 bg-gray-800 w-28 text-white font-bold hover:bg-green-800 transaction duration-500">Sprint</button>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

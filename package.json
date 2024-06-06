@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@nextui-org/calendar": "^2.0.6",
+    "@nextui-org/date-picker": "^2.1.1",
     "@nextui-org/system": "^2.2.1",
     "@nextui-org/theme": "^2.2.5",
     "date-fns": "^3.6.0",
