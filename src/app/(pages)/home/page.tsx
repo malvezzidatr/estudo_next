@@ -1,10 +1,12 @@
 "use client"
 import { DateRangePicker } from "@nextui-org/date-picker";
 import { useEffect, useRef, useState } from "react";
+import { CiCirclePlus } from "react-icons/ci";
 
 export default function Home() {
   const [isOpenDatePicker, setIsOpenDatePicker] = useState<boolean>(false);
-  const [sprintDays, setSprintDays] = useState<string[]>([]); 
+  const [sprintDays, setSprintDays] = useState<string[]>([]);
+  const [days, setDays] = useState<any>();
   const dateRangePickerRef = useRef<HTMLDivElement>(null);
 
   const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, handler: () => void) => {
@@ -67,7 +69,7 @@ export default function Home() {
           <DateRangePicker
             ref={dateRangePickerRef}
             isOpen={isOpenDatePicker}
-            onChange={value => calculateWhenSprintEnds(value)}
+            onChange={value => setDays(value)}
             visibleMonths={3}
             label="Início e fim"
             color="primary"
@@ -78,14 +80,19 @@ export default function Home() {
 
             }}
           />
-          <button className="rounded-full absolute right-0 mr-2 h-14 bg-primary-500 w-32 text-white font-bold hover:bg-green-600 duration-300">Sprint</button>
+          <button
+            onClick={() => calculateWhenSprintEnds(days)}
+            className="rounded-full absolute right-0 mr-2 h-14 bg-primary-500 w-32 text-white font-bold hover:bg-green-600 duration-300"
+          >
+            Sprint
+          </button>
         </div>
       </div>
       {
         sprintDays.length > 0 && (
-          <div className="w-5/6 flex flex-col items-center rounded-md border">
+          <div className="w-11/12 flex flex-col items-center rounded-md border mt-8">
             <div className="flex items-center w-full">
-              <div className="flex w-52 h-20 items-center justify-center bg-gray-100">
+              <div className="flex w-48 h-20 items-center justify-center bg-gray-100">
                 <p className="text-black">Demandas</p>
               </div>
               {
@@ -94,7 +101,7 @@ export default function Home() {
                     <div className="h-full flex items-center rounded border-t border-b bg-gray-100">
                       <div className="h-2/4 w-0.5 bg-gray-300" />
                     </div>
-                    <div className="flex w-24 h-20 items-center justify-center bg-gray-100">
+                    <div className="flex flex-1 h-20 items-center justify-center bg-gray-100">
                       <p className="text-black">{day}</p>
                     </div>
                     
@@ -102,6 +109,9 @@ export default function Home() {
                 ))
               }
             </div>
+            <button className="flex items-center justify-evenly pl-3 pr-3 w-64 h-14 rounded-full bg-green-500 text-white m-6">
+              <span><CiCirclePlus size={35} color="#fff"/></span> Adicionar demanda
+            </button>
           </div>
         )
       }
