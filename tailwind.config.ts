@@ -15,6 +15,13 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      margin: {
+        '1-voids': '15rem',
+        '2-voids': '26rem',
+        '3-voids': '37rem',
+        '4-voids': '48rem',
+        '5-voids': '59rem'
+      }
     },
   },
   plugins: [nextui()],

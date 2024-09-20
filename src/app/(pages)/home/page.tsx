@@ -41,6 +41,11 @@ export default function Home() {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [demands, setDemands] = useState<any[]>([]);
   const [demandsName, setDemandsName] = useState<string>('');
+  const [frontEnd, setFrontEnd] = useState({
+    start: '2024-09-03',
+    end: '2024-09-05',
+  });
+  const [stackDates, setStackDates] = useState<Map<any, any>>();
   const dateRangePickerRef = useRef<HTMLDivElement>(null);
 
   const openModal = () => setIsOpenModal(true);
@@ -48,7 +53,39 @@ export default function Home() {
 
   const addDemands = () => {
     setDemands(props => [...props, demandsName])
+    compareDates();
   }
+
+  const compareDates = () => {
+    const map = new Map();
+    sprintDays.map((day, index) => {
+      const [daySplitted, monthSplitted] = day.split('/');
+      const dayNumber = parseInt(daySplitted, 10);
+      const monthNumber = parseInt(monthSplitted, 10);
+      const date = new Date(2024, monthNumber - 1, dayNumber);
+
+      
+      const frontEndStartSplitted = frontEnd.start.split('-');
+      const frontEndDayStart = parseInt(frontEndStartSplitted[2], 10)
+      const frontEndMonthStart = parseInt(frontEndStartSplitted[1], 10)
+      const frontEndyearStart = parseInt(frontEndStartSplitted[0], 10)
+      const frontStartDate = new Date(frontEndyearStart, frontEndMonthStart - 1, frontEndDayStart);
+
+      const frontEndSplittedEndDay = frontEnd.end.split('-');
+      const frontEndDayEnd = parseInt(frontEndSplittedEndDay[2], 10)
+      const frontEndMonthEnd = parseInt(frontEndSplittedEndDay[1], 10)
+      const frontEndyearEnd = parseInt(frontEndSplittedEndDay[0], 10)
+
+      const frontEndDate = new Date(frontEndyearEnd, frontEndMonthEnd - 1, frontEndDayEnd);
+
+      if(frontStartDate > date) {
+        map.set('void', (map.get('void') || 0) + 1);
+      } else if (frontEndDate >= date) {
+        map.set('work', (map.get('work') || 0) + 1); 
+      }
+    });
+    setStackDates(map);
+  };
 
   const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, handler: () => void) => {
     useEffect(() => {
@@ -100,6 +137,23 @@ export default function Home() {
 
     setSprintDays(sprintDays);
   }
+
+  const getVoidMargin = (voidCount: any) => {
+    switch (voidCount) {
+      case 1:
+        return 'ml-1-voids';
+      case 2:
+        return 'ml-2-voids';
+      case 3:
+        return 'ml-3-voids';
+      case 4:
+        return 'ml-4-voids';
+      case 5:
+        return 'ml-5-voids';
+      default:
+        return '0rem';
+    }
+  };
 
   return (
     <section className="h-screen items-center flex pt-8 flex-col bg-white">
@@ -160,16 +214,20 @@ export default function Home() {
                 ))
               }
             </div>
-            <p className="text-primary-100">Teste</p>
             {
               demands.map((item, index) => {
                 return (
                   <div
                     key={item}
-                    className={`${index % 2 ? 'bg-primary-50' : 'bg-white'} h-20 text-black w-full`}
+                    className={`${index % 2 ? 'bg-primary-50' : 'bg-white'} h-20 text-black w-full flex`}
                   >
-                    <div className="w-48 h-20 text-center flex items-center justify-center">
+                    <div className="w-56 h-24 text-center flex items-center justify-center">
                       <p>{item}</p>
+                    </div>
+                    <div className="flex flex-col w-full">
+                      <div className={`${getVoidMargin(stackDates?.get('void'))} rounded bg-red-500 w-56 h-8`}></div>
+                      <div className="bg-green-500 w-full h-8 rounded"></div>
+                      <div className="bg-blue-500 w-full h-8 rounded"></div>
                     </div>
                   </div>
                 )
