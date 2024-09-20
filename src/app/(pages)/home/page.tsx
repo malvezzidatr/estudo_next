@@ -1,13 +1,54 @@
-"use client"
+"use client";
 import { DateRangePicker } from "@nextui-org/date-picker";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { CiCirclePlus } from "react-icons/ci";
+import { motion, AnimatePresence } from "framer-motion";
+
+export const ModalExample = ({ isOpen, closeModal, addDemands, demandsName, setDemandName }: any) => {
+  return (
+    <>
+      {isOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black opacity-50" onClick={closeModal}></div>
+          <div className="bg-white rounded-lg shadow-lg p-6 z-10 w-1/3">
+            <h2 className="text-xl font-bold mb-4 text-black">Adicionar Demanda</h2>
+            <p className="mb-4 text-black">Insira os detalhes da nova demanda aqui.</p>
+            <input className="text-primary-500" placeholder="Nome da demanda" value={demandsName} onChange={e => setDemandName(e.target.value)} />
+            <button
+              onClick={closeModal}
+              className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
+            >
+              Fechar
+            </button>
+            <button
+              onClick={addDemands}
+              className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
+            >
+              Criar
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
 
 export default function Home() {
-  const [isOpenDatePicker, setIsOpenDatePicker] = useState<boolean>(false);
+  const [isOpenDatePicker, setIsOpenDatePicker] = useState(false);
   const [sprintDays, setSprintDays] = useState<string[]>([]);
   const [days, setDays] = useState<any>();
+  const [sprintNumber, setSprintNumber] = useState<string>('');
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [demands, setDemands] = useState<any[]>([]);
+  const [demandsName, setDemandsName] = useState<string>('');
   const dateRangePickerRef = useRef<HTMLDivElement>(null);
+
+  const openModal = () => setIsOpenModal(true);
+  const closeModal = () => setIsOpenModal(false);
+
+  const addDemands = () => {
+    setDemands(props => [...props, demandsName])
+  }
 
   const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, handler: () => void) => {
     useEffect(() => {
@@ -43,29 +84,33 @@ export default function Home() {
 
   const adjustSprintDay = (date: Date) => {
     const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
-    const month = date.getMonth() + 1 < 10 ? `0${date.getMonth()}` : date.getMonth();
-    return `${day}/${month}`
+    const month = date.getMonth() < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
+    return `${day}/${month}`;
   }
 
   const calculateWhenSprintEnds = (value: any) => {
-    const sprintDays = []
+    const sprintDays = [];
     const startDate = new Date(value.start.year, value.start.month - 1, value.start.day);
     const end = new Date(value.end.year, value.end.month - 1, value.end.day);
 
-    while(startDate <= end) {
+    while (startDate <= end) {
       sprintDays.push(adjustSprintDay(startDate));
       startDate.setDate(startDate.getDate() + 1);
     }
-    
+
     setSprintDays(sprintDays);
   }
 
   return (
     <section className="h-screen items-center flex pt-8 flex-col bg-white">
       <div className="flex flex-col w-3/6 relative mb-8">
-        <div className="h-20 shadow rounded-xl flex w-full items-center justify-between border-2 border-primary-100">
-          <input placeholder="Número da Sprint" className="bg-primary-50 pl-5 rounded-xl w-2/4 h-full outline-none placeholder:text-primary-500"/>
-          <div className="h-8 w-0.5 rounded-full bg-primary-200 m-2" />
+        <div className="h-28 shadow rounded-xl flex w-full items-center justify-between border-2 border-primary-100">
+          <input 
+            onChange={e => setSprintNumber(e.target.value)} 
+            placeholder="Número da Sprint" 
+            className="bg-primary-50 pl-5 font-bold text-xl text-primary-500 rounded-xl w-2/4 h-full outline-none placeholder:text-primary-500"
+          />
+          <div className="w-0.5 rounded-full bg-primary-200 m-2" />
           <DateRangePicker
             ref={dateRangePickerRef}
             isOpen={isOpenDatePicker}
@@ -75,50 +120,72 @@ export default function Home() {
             color="primary"
             size="lg"
             classNames={{
-              base: "h-full w-3/4 bg-primary-50 flex justify-center rounded-xl",
+              base: "h-full w-3/4 bg-primary-50 flex justify-center rounded-xl font-bold text-xl",
               inputWrapper: "h-full"
-
             }}
           />
-          <button
+          <motion.button
             onClick={() => calculateWhenSprintEnds(days)}
-            className="rounded-full absolute right-0 mr-2 h-14 bg-primary-500 w-32 text-white font-bold hover:bg-green-600 duration-200"
+            className="rounded-full absolute right-0 mr-1 h-14 bg-primary-500 w-40 text-white font-bold hover:bg-green-600 duration-200"
           >
             Sprint
-          </button>
+          </motion.button>
         </div>
       </div>
-      {
-        sprintDays.length > 0 ? (
-          <div className="w-11/12 flex flex-col items-center rounded-md border border-primary-200 shadow">
-            <div className="flex items-center w-full">
+
+      {sprintDays.length > 0 && (
+        <AnimatePresence mode="wait">
+          <h1 className="text-primary-500 font-bold mb-5 text-5xl">Sprint {sprintNumber}</h1>
+          <motion.div
+            key='sprintDays'
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+            className="w-11/12 flex flex-col items-center rounded-md border border-primary-200 shadow"
+          >
+            <div className="flex w-full">
               <div className="flex w-48 h-20 items-center justify-center bg-primary-50 rounded-tl-md">
                 <p className="text-black">Demandas</p>
               </div>
               {
                 sprintDays.map((day, index) => (
-                  <>
-                    <div className="h-full flex items-center rounded border-t border-b bg-primary-50">
+                  <React.Fragment key={index + day}>
+                    <div className="h-20 flex items-center rounded border-t border-b bg-primary-50">
                       <div className="h-2/4 w-0.5 bg-primary-200" />
                     </div>
                     <div className={`flex flex-1 h-20 items-center justify-center bg-primary-50 ${sprintDays[index + 1] === undefined && 'rounded-tr-md'}`}>
                       <p className="text-black">{day}</p>
                     </div>
-                    
-                  </>
+                  </React.Fragment>
                 ))
               }
             </div>
-            <button className="flex items-center justify-evenly pl-3 pr-3 w-64 h-14 rounded-full bg-green-500 text-white m-6 hover:bg-green-600 duration-200">
+            <p className="text-primary-100">Teste</p>
+            {
+              demands.map((item, index) => {
+                return (
+                  <div
+                    key={item}
+                    className={`${index % 2 ? 'bg-primary-50' : 'bg-white'} h-20 text-black w-full`}
+                  >
+                    <div className="w-48 h-20 text-center flex items-center justify-center">
+                      <p>{item}</p>
+                    </div>
+                  </div>
+                )
+              })
+            }
+            <button
+              onClick={openModal} 
+              className="flex items-center justify-evenly pl-3 pr-3 w-64 h-14 rounded-full bg-green-500 text-white m-6 hover:bg-green-600 duration-200"
+            >
               <span><CiCirclePlus size={35} color="#fff"/></span> Adicionar demanda
             </button>
-          </div>
-        ) : (
-          <div className="w-11/12 h-3/5 flex justify-center items-center rounded-md border border-primary-200 bg-primary-50 shadow">
+          </motion.div>
+        </AnimatePresence>
+      )}
 
-          </div>
-        )
-      }
+      <ModalExample isOpen={isOpenModal} closeModal={closeModal} addDemands={addDemands} demandsName={demandsName} setDemandName={setDemandsName} />
     </section>
   );
 }
