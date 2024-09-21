@@ -46,6 +46,8 @@ export default function Home() {
     end: '2024-09-05',
   });
   const [stackDates, setStackDates] = useState<Map<any, any>>();
+  const [selectedId, setSelectedId] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
   const dateRangePickerRef = useRef<HTMLDivElement>(null);
 
   const openModal = () => setIsOpenModal(true);
@@ -156,7 +158,18 @@ export default function Home() {
   };
 
   return (
-    <section className="h-screen items-center flex pt-8 flex-col bg-white">
+    <section className="h-screen items-center flex flex-col bg-white">
+      <AnimatePresence>
+        {selectedId && (
+          <motion.div className="h-full flex items-center justify-center w-full absolute z-10" layoutId={selectedId}>
+            <div onClick={() => setSelectedId(null)} className="h-full w-full bg-black opacity-40 absolute" />
+            <div className="h-48 w-56 bg-red-400 opacity-100 z-10">
+              <motion.h5>{selectedItem}</motion.h5>
+              <motion.button onClick={() => setSelectedId(null)}>Fechar</motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="flex flex-col w-3/6 relative mb-8">
         <div className="h-28 shadow rounded-xl flex w-full items-center justify-between border-2 border-primary-100">
           <input 
@@ -219,11 +232,20 @@ export default function Home() {
                 return (
                   <div
                     key={item}
-                    className={`${index % 2 ? 'bg-primary-50' : 'bg-white'} h-20 text-black w-full flex`}
+                    className={`${index % 2 ? 'bg-primary-50' : 'bg-white'} h-24 text-black rounded w-full flex`}
                   >
-                    <div className="w-56 h-24 text-center flex items-center justify-center">
-                      <p>{item}</p>
-                    </div>
+                    <motion.div
+                      onClick={() => {
+                        setSelectedId(item)
+                        setSelectedItem(item)
+                      }}
+                      layoutId={item}
+                      className="p-2 w-56 h-full text-center flex items-center justify-center"
+                    >
+                      <div className="w-40 h-20 bg-yellow-200 rounded">
+                        <p>{item}</p>
+                      </div>
+                    </motion.div>
                     <div className="flex flex-col w-full">
                       <div className={`${getVoidMargin(stackDates?.get('void'))} rounded bg-red-500 w-56 h-8`}></div>
                       <div className="bg-green-500 w-full h-8 rounded"></div>
